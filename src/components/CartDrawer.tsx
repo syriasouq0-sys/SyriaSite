@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/useCartStore';
 import { Minus, Plus, X } from 'lucide-react';
@@ -12,6 +12,9 @@ const CartDrawer = () => {
       <SheetContent className="flex flex-col w-full sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>Shopping Cart ({items.length})</SheetTitle>
+          <SheetDescription>
+            Review your items before checkout
+          </SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto py-4">
