@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "home": "Hem",
+    "store": "Butik",
+    "about": "Om oss",
+    "cart": "Varukorg"
+  },
+  "hero": {
+    "badge": "Autentiska syriska produkter",
+    "title": "Fira syriskt",
+    "titleAccent": "Arv & Stolthet",
+    "description": "Upptäck autentiska syriska flaggor, halsdukar och accessoarer. Varje produkt tillverkad med kvalitet och stolthet för att fira vårt vackra arv.",
+    "shopNow": "Handla nu",
+    "learnMore": "Läs mer"
+  },
+  "features": {
+    "quality": {
+      "title": "Äkta kvalitet",
+      "description": "Premiummaterial och hantverk i varje produkt"
+    },
+    "shipping": {
+      "title": "Snabb frakt",
+      "description": "Snabb och pålitlig leverans över hela Sverige"
+    },
+    "satisfaction": {
+      "title": "Kundnöjdhet",
+      "description": "Älskad av vårt community av stolta kunder"
+    }
+  },
+  "products": {
+    "featured": "Utvalda produkter",
+    "all": "Alla produkter",
+    "addToCart": "Lägg i varukorg",
+    "inStock": "I lager",
+    "outOfStock": "Slutsåld",
+    "viewAll": "Visa alla produkter"
+  },
+  "cart": {
+    "title": "Varukorg",
+    "empty": "Din varukorg är tom",
+    "continueShopping": "Fortsätt handla",
+    "total": "Totalt",
+    "checkout": "Gå till kassan"
+  },
+  "footer": {
+    "description": "Autentiska syriska flaggor, halsdukar och accessoarer. Firar syriskt arv med stolthet.",
+    "shop": "Handla",
+    "information": "Information",
+    "connect": "Kontakt",
+    "rights": "Alla rättigheter förbehållna",
+    "madeWith": "Gjord med kärlek för Syrien"
+  }
+}

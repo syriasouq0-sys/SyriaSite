@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "home": "Home",
+    "store": "Store",
+    "about": "About",
+    "cart": "Cart"
+  },
+  "hero": {
+    "badge": "Authentic Syrian Products",
+    "title": "Celebrate Syrian",
+    "titleAccent": "Heritage & Pride",
+    "description": "Discover authentic Syrian flags, scarves, and accessories. Each product crafted with quality and pride to celebrate our beautiful heritage.",
+    "shopNow": "Shop Now",
+    "learnMore": "Learn More"
+  },
+  "features": {
+    "quality": {
+      "title": "Authentic Quality",
+      "description": "Premium materials and craftsmanship in every product"
+    },
+    "shipping": {
+      "title": "Fast Shipping",
+      "description": "Quick and reliable delivery across Sweden"
+    },
+    "satisfaction": {
+      "title": "Customer Satisfaction",
+      "description": "Loved by our community of proud customers"
+    }
+  },
+  "products": {
+    "featured": "Featured Products",
+    "all": "All Products",
+    "addToCart": "Add to Cart",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "viewAll": "View All Products"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "total": "Total",
+    "checkout": "Proceed to Checkout"
+  },
+  "footer": {
+    "description": "Authentic Syrian flags, scarves, and accessories. Celebrating Syrian heritage with pride.",
+    "shop": "Shop",
+    "information": "Information",
+    "connect": "Connect",
+    "rights": "All rights reserved",
+    "madeWith": "Made with love for Syria"
+  }
+}
