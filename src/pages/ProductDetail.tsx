@@ -1,27 +1,46 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductBySlug } from '@/data/products';
+import { useProductBySlug } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/useCartStore';
-import { ArrowLeft, ShoppingCart, Package, Truck, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Package, Truck, ShieldCheck, Loader2, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
+import { useActiveEvent } from '@/hooks/useEvents';
 
 const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { addItem, toggleCart } = useCartStore();
+  const { addItem } = useCartStore();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as 'en' | 'ar' | 'sv';
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const { data: activeEvent } = useActiveEvent();
 
-  const product = getProductBySlug(slug || '');
+  const { data: product, isLoading, error } = useProductBySlug(slug || '');
 
-  if (!product) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Product not found</h2>
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">{t('product.loading') || 'Loading product...'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product || error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">{t('product.notFound') || 'Product not found'}</h2>
           <Button onClick={() => navigate('/store')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Store
+            {t('product.backToStore') || 'Back to Store'}
           </Button>
         </div>
       </div>
@@ -30,7 +49,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     addItem(product);
-    toast.success(`${product.title.en} added to cart!`);
+    toast.success(`${product.title[lang]} ${t('product.addedToCart') || 'added to cart!'}`);
   };
 
   return (
@@ -42,23 +61,49 @@ const ProductDetail = () => {
           className="mb-8"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Store
+          {t('product.backToStore') || 'Back to Store'}
         </Button>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Product Image */}
+          {/* Product Image Gallery */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
+            className="space-y-4"
           >
+            {/* Main Image */}
             <div className="aspect-square rounded-2xl overflow-hidden bg-muted">
               <img
-                src={product.images[0]}
-                alt={product.title.en}
+                src={product.images[selectedImageIndex]}
+                alt={`${product.title[lang]} - Image ${selectedImageIndex + 1}`}
                 className="w-full h-full object-cover"
               />
             </div>
+
+            {/* Thumbnail Gallery */}
+            {product.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-3">
+                {product.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={cn(
+                      "aspect-square rounded-lg overflow-hidden bg-muted border-2 transition-all hover:scale-105",
+                      selectedImageIndex === index
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "border-transparent hover:border-muted-foreground/30"
+                    )}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.title[lang]} - Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           {/* Product Info */}
@@ -70,16 +115,49 @@ const ProductDetail = () => {
           >
             <div>
               <Badge className="mb-3">{product.category}</Badge>
-              <h1 className="text-4xl font-bold mb-2">{product.title.en}</h1>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-primary">
-                  {product.price} {product.currency}
-                </span>
-              </div>
+              <h1 className="text-4xl font-bold mb-2">{product.title[lang]}</h1>
+              
+              {/* Calculate discount logic */}
+              {(() => {
+                const productDiscount = product.discount_percentage && product.discount_percentage > 0;
+                const eventDiscount = activeEvent?.discount_percentage && activeEvent.discount_percentage > 0;
+                
+                const hasDiscount = productDiscount || eventDiscount;
+                const discountPercentage = productDiscount 
+                  ? product.discount_percentage 
+                  : (eventDiscount ? activeEvent?.discount_percentage : 0);
+                
+                const discountedPrice = hasDiscount && discountPercentage
+                  ? Math.round(product.price * (1 - discountPercentage / 100))
+                  : product.price;
+                
+                return (
+                  <div className="flex items-baseline gap-2">
+                    {hasDiscount && discountPercentage ? (
+                      <>
+                        <Badge variant="destructive" className="mr-2">
+                          <Tag className="h-3 w-3 mr-1" />
+                          -{discountPercentage}% OFF
+                        </Badge>
+                        <span className="text-3xl font-bold text-destructive">
+                          {discountedPrice} {product.currency}
+                        </span>
+                        <span className="text-lg text-muted-foreground line-through">
+                          {product.price} {product.currency}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-3xl font-bold text-primary">
+                        {product.price} {product.currency}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             <p className="text-lg text-muted-foreground leading-relaxed">
-              {product.description.en}
+              {product.description[lang]}
             </p>
 
             {/* Stock status */}

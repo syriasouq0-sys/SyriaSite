@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '@/store/useCartStore';
 import { Button } from '@/components/ui/button';
@@ -6,15 +6,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Truck, CreditCard, ArrowLeft, Package } from 'lucide-react';
+import { ShieldCheck, Truck, CreditCard, ArrowLeft, Package, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabaseHelpers } from '@/lib/supabase';
+import { sendOrderConfirmationEmail } from '@/lib/emailService';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items, getTotalPrice, currency, clearCart } = useCartStore();
+  const { items, getTotalPrice, getSubtotal, getDiscount, currency, discountCode, discountPercentage, clearCart } = useCartStore();
   const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
@@ -39,27 +43,20 @@ const Checkout = () => {
     );
   }
 
-  const handleShippingSubmit = (e: React.FormEvent) => {
+  const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Validate shipping info
     if (!shippingInfo.fullName || !shippingInfo.email || !shippingInfo.address) {
       toast.error('Please fill in all required fields');
       return;
     }
-    setStep('payment');
-  };
-
-  const handlePayment = async () => {
-    setIsProcessing(true);
     
-    // Simulate payment processing
-    // In production, this would call your Stripe integration
-    setTimeout(() => {
-      toast.success('Order placed successfully!');
-      clearCart();
-      navigate('/');
-      setIsProcessing(false);
-    }, 2000);
+    setIsProcessing(true);
+    setPaymentError(null);
+
+    // No need to create a payment intent, just proceed to payment step
+    setIsProcessing(false);
+    setStep('payment');
   };
 
   const total = getTotalPrice();
@@ -217,8 +214,22 @@ const Checkout = () => {
                         </div>
                       </div>
 
-                      <Button type="submit" className="w-full" size="lg">
-                        Continue to Payment
+                      {paymentError && (
+                        <Alert variant="destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>{paymentError}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      <Button type="submit" className="w-full" size="lg" disabled={isProcessing}>
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Preparing Payment...
+                          </>
+                        ) : (
+                          'Continue to Payment'
+                        )}
                       </Button>
                     </form>
                   </CardContent>
@@ -226,82 +237,153 @@ const Checkout = () => {
               </motion.div>
             )}
 
-            {/* Payment Information */}
+            {/* Payment Form */}
             {step === 'payment' && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-              >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CreditCard className="h-5 w-5 text-primary" />
-                      Payment Method
-                    </CardTitle>
-                    <CardDescription>
-                      Payment integration is prepared but not connected yet
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-6 border-2 border-dashed rounded-lg text-center">
-                      <CreditCard className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                      <p className="font-semibold mb-2">Stripe Payment Integration</p>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Connect your Stripe account to accept payments
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        See README_SETUP.md for integration instructions
-                      </p>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                    Payment Details
+                  </CardTitle>
+                  <CardDescription>
+                    Enter your payment information to complete your order
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="p-4 border rounded-lg space-y-4">
+                    <div className="space-y-2">
+                      <Label>Card Number</Label>
+                      <Input placeholder="4242 4242 4242 4242" />
                     </div>
-
-                    <div className="flex gap-3">
-                      <Button
-                        variant="outline"
-                        onClick={() => setStep('shipping')}
-                        className="flex-1"
-                      >
-                        Back
-                      </Button>
-                      <Button
-                        onClick={handlePayment}
-                        disabled={isProcessing}
-                        className="flex-1"
-                        size="lg"
-                      >
-                        {isProcessing ? 'Processing...' : 'Place Order (Demo)'}
-                      </Button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Expiry Date</Label>
+                        <Input placeholder="MM/YY" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>CVC</Label>
+                        <Input placeholder="123" />
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Trust Indicators */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Card>
-                    <CardContent className="flex items-center gap-3 pt-6">
-                      <ShieldCheck className="h-8 w-8 text-primary" />
-                      <div>
-                        <p className="font-semibold text-sm">Secure Payment</p>
-                        <p className="text-xs text-muted-foreground">
-                          Your payment information is encrypted
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="flex items-center gap-3 pt-6">
-                      <Truck className="h-8 w-8 text-primary" />
-                      <div>
-                        <p className="font-semibold text-sm">Fast Delivery</p>
-                        <p className="text-xs text-muted-foreground">
-                          Ships within 2-3 business days
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </motion.div>
+                  </div>
+                  
+                  {paymentError && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{paymentError}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setStep('shipping')}
+                      className="flex-1"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        setIsProcessing(true);
+                        
+                        try {
+                          // Generate a mock payment ID for this example
+                          const mockPaymentId = `mock_${Math.random().toString(36).substring(2, 15)}`;
+                          
+                          // Save order to Supabase
+                          const { data: order, error: orderError } = await supabaseHelpers.createOrder({
+                            total_amount: finalTotal,
+                            currency: currency,
+                            shipping: shippingInfo,
+                            status: 'paid',
+                            discount_code: discountCode || null,
+                            discount_amount: getDiscount() || 0,
+                            payment_method: 'card',
+                            payment_id: mockPaymentId,
+                            created_at: new Date().toISOString()
+                          });
+                          
+                          if (orderError) {
+                            console.error('Error creating order:', orderError);
+                            throw new Error(`Failed to create order: ${orderError.message}`);
+                          }
+                          
+                          if (!order) {
+                            throw new Error('No order was returned from the database');
+                          }
+                          
+                          // Save order items
+                          const orderItems = items.map(item => ({
+                            order_id: order.id,
+                            product_id: item.product.id,
+                            quantity: item.quantity,
+                            unit_price: (() => {
+                              // Get active event from window
+                              const activeEvent = window.activeEvent;
+                              
+                              // Calculate discount
+                              const productDiscount = item.product.discount_percentage && item.product.discount_percentage > 0;
+                              const eventDiscount = activeEvent?.discount_percentage && activeEvent.discount_percentage > 0;
+                              
+                              const hasDiscount = productDiscount || eventDiscount;
+                              const discountPercentage = productDiscount 
+                                ? item.product.discount_percentage 
+                                : (eventDiscount ? activeEvent?.discount_percentage : 0);
+                              
+                              return hasDiscount && discountPercentage
+                                ? Math.round(item.product.price * (1 - discountPercentage / 100))
+                                : item.product.price;
+                            })()
+                          }));
+                          
+                          const { error: itemsError } = await supabaseHelpers.addOrderItems(orderItems);
+                          if (itemsError) {
+                            console.error('Error adding order items:', itemsError);
+                            throw new Error(`Failed to add order items: ${itemsError.message}`);
+                          }
+                          
+                          // Send mock email confirmation
+                          try {
+                            const emailSent = await sendOrderConfirmationEmail(order.id);
+                            if (emailSent) {
+                              console.log('Order confirmation email sent successfully');
+                            } else {
+                              console.warn('Failed to send order confirmation email');
+                            }
+                          } catch (emailErr) {
+                            console.error('Exception sending email:', emailErr);
+                            // Continue with checkout even if email fails
+                          }
+                          
+                          toast.success('Order placed successfully!');
+                          clearCart();
+                          navigate(`/order-confirmation?order_id=${order.id}`);
+                        } catch (error) {
+                          console.error('Error saving order:', error);
+                          setPaymentError(error instanceof Error ? error.message : 'Failed to process your order');
+                          toast.error('There was a problem processing your order. Please try again.');
+                        } finally {
+                          setIsProcessing(false);
+                        }
+                      }}
+                      disabled={isProcessing}
+                      className="flex-1"
+                      size="lg"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Complete Purchase'
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             )}
+
           </div>
 
           {/* Order Summary */}
@@ -328,7 +410,25 @@ const Checkout = () => {
                           Qty: {item.quantity}
                         </p>
                         <p className="text-sm font-semibold">
-                          {item.product.price * item.quantity} {currency}
+                          {(() => {
+                            // Get active event from window
+                            const activeEvent = window.activeEvent;
+                            
+                            // Calculate discount
+                            const productDiscount = item.product.discount_percentage && item.product.discount_percentage > 0;
+                            const eventDiscount = activeEvent?.discount_percentage && activeEvent.discount_percentage > 0;
+                            
+                            const hasDiscount = productDiscount || eventDiscount;
+                            const discountPercentage = productDiscount 
+                              ? item.product.discount_percentage 
+                              : (eventDiscount ? activeEvent?.discount_percentage : 0);
+                            
+                            const discountedPrice = hasDiscount && discountPercentage
+                              ? Math.round(item.product.price * (1 - discountPercentage / 100))
+                              : item.product.price;
+                            
+                            return `${discountedPrice * item.quantity} ${currency}`;
+                          })()}
                         </p>
                       </div>
                     </div>
@@ -342,9 +442,19 @@ const Checkout = () => {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">
-                      {total} {currency}
+                      {getSubtotal()} {currency}
                     </span>
                   </div>
+                  
+                  {discountCode && (
+                    <div className="flex justify-between text-sm text-primary">
+                      <span>Discount ({discountPercentage}%)</span>
+                      <span className="font-medium">
+                        -{getDiscount()} {currency}
+                      </span>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
                     <span className="font-medium">
@@ -355,9 +465,9 @@ const Checkout = () => {
                       )}
                     </span>
                   </div>
-                  {total < 500 && shipping > 0 && (
+                  {getTotalPrice() < 500 && shipping > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      Add {500 - total} {currency} more for free shipping
+                      Add {500 - getTotalPrice()} {currency} more for free shipping
                     </p>
                   )}
                 </div>

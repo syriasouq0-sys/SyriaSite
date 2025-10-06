@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { Heart, Star, Users, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const About = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen py-12">
       <div className="container">
@@ -11,9 +14,9 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">About Syria Store</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{t('about.title')}</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Celebrating Syrian heritage through authentic, quality products that connect our community with pride
+            {t('about.subtitle')}
           </p>
         </motion.div>
 
@@ -25,16 +28,16 @@ const About = () => {
           className="max-w-4xl mx-auto mb-20"
         >
           <div className="prose prose-lg mx-auto">
-            <h2 className="text-3xl font-bold mb-6 text-center">Our Story</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">{t('about.ourStory')}</h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Syria Store was born from a deep love for Syrian heritage and a desire to help our community stay connected to their roots, no matter where they are in the world.
+                {t('about.story1')}
               </p>
               <p>
-                We carefully curate and create each product with authenticity and quality in mind. From our handmade crochet scarves to our premium flags, every item is chosen to represent the pride and beauty of Syrian culture.
+                {t('about.story2')}
               </p>
               <p>
-                Based in Sweden, we serve the Syrian diaspora and anyone who appreciates Syrian culture, providing authentic products that celebrate our heritage and keep our traditions alive.
+                {t('about.story3')}
               </p>
             </div>
           </div>
@@ -52,9 +55,9 @@ const About = () => {
             <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
               <Heart className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="font-bold mb-2">Authentic Heritage</h3>
+            <h3 className="font-bold mb-2">{t('about.values.heritage.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Every product celebrates genuine Syrian culture and craftsmanship
+              {t('about.values.heritage.description')}
             </p>
           </motion.div>
 
@@ -68,9 +71,9 @@ const About = () => {
             <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
               <Star className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="font-bold mb-2">Premium Quality</h3>
+            <h3 className="font-bold mb-2">{t('about.values.quality.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              We never compromise on quality, ensuring lasting products
+              {t('about.values.quality.description')}
             </p>
           </motion.div>
 
@@ -84,9 +87,9 @@ const About = () => {
             <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
               <Users className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="font-bold mb-2">Community First</h3>
+            <h3 className="font-bold mb-2">{t('about.values.community.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Serving and connecting the Syrian community worldwide
+              {t('about.values.community.description')}
             </p>
           </motion.div>
 
@@ -100,9 +103,9 @@ const About = () => {
             <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
               <Package className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="font-bold mb-2">Careful Curation</h3>
+            <h3 className="font-bold mb-2">{t('about.values.curation.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Each product is thoughtfully selected and crafted
+              {t('about.values.curation.description')}
             </p>
           </motion.div>
         </div>
@@ -117,15 +120,15 @@ const About = () => {
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold mb-2">1000+</div>
-              <div className="text-primary-foreground/90">Happy Customers</div>
+              <div className="text-primary-foreground/90">{t('about.stats.customers')}</div>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">100%</div>
-              <div className="text-primary-foreground/90">Authentic Products</div>
+              <div className="text-primary-foreground/90">{t('about.stats.authentic')}</div>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">3</div>
-              <div className="text-primary-foreground/90">Languages Supported</div>
+              <div className="text-primary-foreground/90">{t('about.stats.languages')}</div>
             </div>
           </div>
         </motion.div>

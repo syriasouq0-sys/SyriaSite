@@ -11,7 +11,10 @@
     "titleAccent": "Heritage & Pride",
     "description": "Discover authentic Syrian flags, scarves, and accessories. Each product crafted with quality and pride to celebrate our beautiful heritage.",
     "shopNow": "Shop Now",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "showYourPride": "Show Your Syrian Pride",
+    "joinThousands": "Join thousands of proud Syrians celebrating our heritage with authentic, quality products",
+    "startShopping": "Start Shopping"
   },
   "features": {
     "quality": {
@@ -33,7 +36,58 @@
     "addToCart": "Add to Cart",
     "inStock": "In stock",
     "outOfStock": "Out of stock",
-    "viewAll": "View All Products"
+    "viewAll": "View All Products",
+    "explorePopular": "Explore our most popular items, handpicked for quality and authenticity"
+  },
+  "store": {
+    "title": "Our Store",
+    "subtitle": "Browse our complete collection of Syrian flags, scarves, and accessories",
+    "searchPlaceholder": "Search products...",
+    "categories": {
+      "all": "All Products",
+      "flags": "Flags",
+      "scarves": "Scarves",
+      "accessories": "Accessories"
+    },
+    "showing": "Showing",
+    "product": "product",
+    "products": "products",
+    "noResults": "No products found matching your criteria",
+    "clearFilters": "Clear Filters",
+    "loading": "Loading products...",
+    "error": "Error loading products. Please check your connection and try again.",
+    "retry": "Retry"
+  },
+  "about": {
+    "title": "About Syria Store",
+    "subtitle": "Celebrating Syrian heritage through authentic, quality products that connect our community with pride",
+    "ourStory": "Our Story",
+    "story1": "Syria Store was born from a deep love for Syrian heritage and a desire to help our community stay connected to their roots, no matter where they are in the world.",
+    "story2": "We carefully curate and create each product with authenticity and quality in mind. From our handmade crochet scarves to our premium flags, every item is chosen to represent the pride and beauty of Syrian culture.",
+    "story3": "Based in Sweden, we serve the Syrian diaspora and anyone who appreciates Syrian culture, providing authentic products that celebrate our heritage and keep our traditions alive.",
+    "values": {
+      "heritage": {
+        "title": "Authentic Heritage",
+        "description": "Every product celebrates genuine Syrian culture and craftsmanship"
+      },
+      "quality": {
+        "title": "Premium Quality",
+        "description": "We never compromise on quality, ensuring lasting products"
+      },
+      "community": {
+        "title": "Community First",
+        "description": "Serving and connecting the Syrian community worldwide"
+      },
+      "curation": {
+        "title": "Careful Curation",
+        "description": "Each product is thoughtfully selected and crafted"
+      }
+    },
+    "stats": {
+      "customers": "Happy Customers",
+      "authentic": "Authentic Products",
+      "languages": "Languages Supported"
+    }
   },
   "cart": {
     "title": "Shopping Cart",
@@ -42,12 +96,35 @@
     "total": "Total",
     "checkout": "Proceed to Checkout"
   },
+  "product": {
+    "loading": "Loading product...",
+    "notFound": "Product not found",
+    "backToStore": "Back to Store",
+    "addedToCart": "added to cart!"
+  },
   "footer": {
     "description": "Authentic Syrian flags, scarves, and accessories. Celebrating Syrian heritage with pride.",
     "shop": "Shop",
     "information": "Information",
     "connect": "Connect",
+    "followUs": "Follow us for updates and new products",
+    "aboutUs": "About Us",
+    "shipping": "Shipping",
+    "returns": "Returns",
+    "contact": "Contact",
+    "contactUs": "Contact Us",
+    "allProducts": "All Products",
+    "flags": "Flags",
+    "scarves": "Scarves",
+    "accessories": "Accessories",
     "rights": "All rights reserved",
-    "madeWith": "Made with love for Syria"
+    "madeWith": "Made with love for Syria",
+    "stayUpdated": "Stay Updated",
+    "newsletterText": "Subscribe to our newsletter for updates on new products and special offers",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "current": "Current"
   }
 }

@@ -1,7 +1,3 @@
-// Language Switcher Component
-// This is a scaffold - implement i18n library to activate
-// npm install react-i18next i18next
-
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,7 +6,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 
 type Language = 'en' | 'ar' | 'sv';
 
@@ -27,20 +24,23 @@ const languages: LanguageOption[] = [
   { code: 'sv', name: 'Swedish', nativeName: 'Svenska', flag: '🇸🇪' },
 ];
 
-// Placeholder implementation
-// To activate:
-// 1. Install: npm install react-i18next i18next
-// 2. Set up i18n config (see setup instructions below)
-// 3. Replace useState with actual i18n hook
-
 export function LanguageSwitcher() {
-  const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
+  const { i18n } = useTranslation();
+  const currentLanguage = i18n.language as Language;
+
+  useEffect(() => {
+    // Set HTML dir and lang attributes on mount and language change
+    if (currentLanguage === 'ar') {
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'ar';
+    } else {
+      document.documentElement.dir = 'ltr';
+      document.documentElement.lang = currentLanguage;
+    }
+  }, [currentLanguage]);
 
   const handleLanguageChange = (langCode: Language) => {
-    setCurrentLanguage(langCode);
-    
-    // When implementing i18n, replace with:
-    // i18n.changeLanguage(langCode);
+    i18n.changeLanguage(langCode);
     
     // Set HTML dir attribute for RTL
     if (langCode === 'ar') {

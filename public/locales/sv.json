@@ -11,7 +11,10 @@
     "titleAccent": "Arv & Stolthet",
     "description": "Upptäck autentiska syriska flaggor, halsdukar och accessoarer. Varje produkt tillverkad med kvalitet och stolthet för att fira vårt vackra arv.",
     "shopNow": "Handla nu",
-    "learnMore": "Läs mer"
+    "learnMore": "Läs mer",
+    "showYourPride": "Visa din syriska stolthet",
+    "joinThousands": "Gå med tusentals stolta syrier som firar vårt arv med autentiska, kvalitetsprodukter",
+    "startShopping": "Börja handla"
   },
   "features": {
     "quality": {
@@ -33,7 +36,58 @@
     "addToCart": "Lägg i varukorg",
     "inStock": "I lager",
     "outOfStock": "Slutsåld",
-    "viewAll": "Visa alla produkter"
+    "viewAll": "Visa alla produkter",
+    "explorePopular": "Utforska våra mest populära produkter, handplockade för kvalitet och autenticitet"
+  },
+  "store": {
+    "title": "Vår butik",
+    "subtitle": "Bläddra i vår kompletta kollektion av syriska flaggor, halsdukar och accessoarer",
+    "searchPlaceholder": "Sök produkter...",
+    "categories": {
+      "all": "Alla produkter",
+      "flags": "Flaggor",
+      "scarves": "Halsdukar",
+      "accessories": "Accessoarer"
+    },
+    "showing": "Visar",
+    "product": "produkt",
+    "products": "produkter",
+    "noResults": "Inga produkter hittades som matchar dina kriterier",
+    "clearFilters": "Rensa filter",
+    "loading": "Laddar produkter...",
+    "error": "Fel vid laddning av produkter. Kontrollera din anslutning och försök igen.",
+    "retry": "Försök igen"
+  },
+  "about": {
+    "title": "Om Syria Store",
+    "subtitle": "Firar syriskt arv genom autentiska, kvalitetsprodukter som förenar vårt community med stolthet",
+    "ourStory": "Vår historia",
+    "story1": "Syria Store föddes ur en djup kärlek till syriskt arv och en önskan att hjälpa vårt community att hålla kontakten med sina rötter, oavsett var de befinner sig i världen.",
+    "story2": "Vi väljer och skapar varje produkt med autenticitet och kvalitet i åtanke. Från våra handgjorda virkade halsdukar till våra premiumflaggor, varje artikel väljs för att representera stoltheten och skönheten i syrisk kultur.",
+    "story3": "Baserade i Sverige betjänar vi den syriska diasporan och alla som uppskattar syrisk kultur, och erbjuder autentiska produkter som firar vårt arv och håller våra traditioner levande.",
+    "values": {
+      "heritage": {
+        "title": "Autentiskt arv",
+        "description": "Varje produkt firar äkta syrisk kultur och hantverk"
+      },
+      "quality": {
+        "title": "Premiumkvalitet",
+        "description": "Vi kompromissar aldrig med kvaliteten, vilket garanterar långvariga produkter"
+      },
+      "community": {
+        "title": "Community först",
+        "description": "Betjänar och förenar det syriska communityt världen över"
+      },
+      "curation": {
+        "title": "Noggrann kuration",
+        "description": "Varje produkt är omsorgsfullt utvald och tillverkad"
+      }
+    },
+    "stats": {
+      "customers": "Nöjda kunder",
+      "authentic": "Autentiska produkter",
+      "languages": "Språk som stöds"
+    }
   },
   "cart": {
     "title": "Varukorg",
@@ -42,12 +96,35 @@
     "total": "Totalt",
     "checkout": "Gå till kassan"
   },
+  "product": {
+    "loading": "Laddar produkt...",
+    "notFound": "Produkten hittades inte",
+    "backToStore": "Tillbaka till butiken",
+    "addedToCart": "tillagd i varukorgen!"
+  },
   "footer": {
     "description": "Autentiska syriska flaggor, halsdukar och accessoarer. Firar syriskt arv med stolthet.",
     "shop": "Handla",
     "information": "Information",
     "connect": "Kontakt",
+    "followUs": "Följ oss för uppdateringar och nya produkter",
+    "aboutUs": "Om oss",
+    "shipping": "Frakt",
+    "returns": "Returer",
+    "contact": "Kontakta oss",
+    "contactUs": "Kontakta oss",
+    "allProducts": "Alla produkter",
+    "flags": "Flaggor",
+    "scarves": "Halsdukar",
+    "accessories": "Accessoarer",
     "rights": "Alla rättigheter förbehållna",
-    "madeWith": "Gjord med kärlek för Syrien"
+    "madeWith": "Gjord med kärlek för Syrien",
+    "stayUpdated": "Håll dig uppdaterad",
+    "newsletterText": "Prenumerera på vårt nyhetsbrev för uppdateringar om nya produkter och specialerbjudanden",
+    "emailPlaceholder": "Ange din e-postadress",
+    "subscribe": "Prenumerera",
+    "privacy": "Integritetspolicy",
+    "terms": "Användarvillkor",
+    "current": "Nuvarande"
   }
 }

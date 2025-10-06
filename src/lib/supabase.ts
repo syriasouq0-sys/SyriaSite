@@ -13,6 +13,23 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Helper functions for common operations
 
 export const supabaseHelpers = {
+  // Expose supabase client for advanced queries
+  supabase,
+
+  // Events
+  async getActiveEvent() {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('is_active', true)
+      .gte('end_date', new Date().toISOString())
+      .lte('start_date', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    return { data, error };
+  },
+
   // Products
   async getProducts() {
     const { data, error } = await supabase
@@ -36,7 +53,8 @@ export const supabaseHelpers = {
       .from('products')
       .select('*')
       .eq('featured', true)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(4);
     return { data, error };
   },
 
@@ -55,6 +73,12 @@ export const supabaseHelpers = {
     total_amount: number;
     currency: string;
     shipping: any;
+    status?: string;
+    discount_code?: string | null;
+    discount_amount?: number;
+    payment_method?: string;
+    payment_id?: string;
+    created_at?: string;
   }) {
     const { data, error } = await supabase
       .from('orders')
