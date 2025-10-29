@@ -110,14 +110,30 @@ const Header = () => {
           >
             <ShoppingCart className="h-4 w-4" />
             <span className="hidden sm:inline">{t('nav.cart')}</span>
-            {totalItems > 0 && (
-              <Badge 
-                variant="secondary" 
-                className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold"
-              >
-                {totalItems}
-              </Badge>
-            )}
+            <AnimatePresence>
+              {totalItems > 0 && (
+                <motion.div
+                  key="cart-badge"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="absolute -top-2 -right-2"
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.3 }}
+                    key={totalItems}
+                  >
+                    <Badge 
+                      variant="secondary" 
+                      className="h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold"
+                    >
+                      {totalItems}
+                    </Badge>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </Button>
 
           <Button

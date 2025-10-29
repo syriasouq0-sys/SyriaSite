@@ -5,13 +5,31 @@ import { useFeaturedProducts } from '@/hooks/useProducts';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, ShieldCheck, Truck, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import ahmedImage from '@/assets/ahmed.png';
+import PageTransition from '@/components/PageTransition';
 
 const Home = () => {
-  const { data: featuredProducts = [], isLoading } = useFeaturedProducts();
+  const { data: featuredProducts = [], isLoading, error } = useFeaturedProducts();
   const { t } = useTranslation();
+  
+  // Log error for debugging
+  useEffect(() => {
+    if (error) {
+      console.error('Featured products error:', error);
+      // Check for RLS/authentication errors
+      if (error && typeof error === 'object' && 'code' in error) {
+        const code = String(error.code);
+        if (code === '42501' || code.includes('permission') || String(error.message || '').includes('RLS')) {
+          console.error('⚠️ RLS Policy Issue: Products may not be accessible to anonymous users.');
+          console.error('Please run the SQL script: scripts/fix-products-rls.sql in your Supabase SQL editor.');
+        }
+      }
+    }
+  }, [error]);
 
   return (
+    <PageTransition>
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
@@ -142,6 +160,20 @@ const Home = () => {
           {isLoading ? (
             <div className="flex items-center justify-center min-h-[300px]">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
+              <p className="text-destructive mb-2">{t('products.loadError') || 'Failed to load products'}</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                {error instanceof Error ? error.message : 'Unknown error occurred'}
+              </p>
+              <Button onClick={() => window.location.reload()} variant="outline">
+                {t('common.retry') || 'Retry'}
+              </Button>
+            </div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="flex items-center justify-center min-h-[300px]">
+              <p className="text-muted-foreground">{t('products.noFeatured') || 'No featured products available'}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
@@ -315,6 +347,7 @@ const Home = () => {
         </div>
       </section>
     </div>
+    </PageTransition>
   );
 };
 

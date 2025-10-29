@@ -3,13 +3,15 @@ import Header from './Header';
 import Footer from './Footer';
 import CartDrawer from './CartDrawer';
 import EventBanner from './EventBanner';
+import BackToTop from './BackToTop';
 import { useActiveEvent } from '@/hooks/useEvents';
 import { useEffect } from 'react';
+import { Event } from '@/types/event';
 
 // Add activeEvent to window for global access
 declare global {
   interface Window {
-    activeEvent?: any;
+    activeEvent?: Event | null;
   }
 }
 
@@ -35,6 +37,7 @@ const Layout = () => {
       </main>
       <Footer />
       <CartDrawer />
+      <BackToTop />
     </div>
   );
 };

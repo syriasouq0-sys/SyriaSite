@@ -3,7 +3,12 @@
     "home": "الرئيسية",
     "store": "المتجر",
     "about": "من نحن",
-    "cart": "السلة"
+    "cart": "السلة",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "myAccount": "حسابي",
+    "orders": "الطلبات",
+    "settings": "الإعدادات"
   },
   "hero": {
     "badge": "منتجات سورية أصيلة",
@@ -125,6 +130,72 @@
     "subscribe": "اشترك",
     "privacy": "سياسة الخصوصية",
     "terms": "شروط الخدمة",
-    "current": "الحالي"
+    "current": "الحالي",
+    "securePayment": "طرق الدفع الآمنة"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "signOut": "تسجيل الخروج",
+    "signInButton": "تسجيل الدخول",
+    "createAccount": "إنشاء حساب",
+    "signInDescription": "سجل الدخول إلى حسابك للوصول إلى طلباتك وإعداداتك",
+    "signUpDescription": "أنشئ حساباً جديداً لتتبع طلباتك وإدارة تفضيلاتك",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟ سجل الدخول",
+    "dontHaveAccount": "ليس لديك حساب؟ سجل الآن",
+    "loading": "جاري التحميل...",
+    "signInSuccess": "تم تسجيل الدخول بنجاح!",
+    "signUpSuccess": "تم إنشاء الحساب! يرجى التحقق من بريدك الإلكتروني للتحقق من حسابك.",
+    "signOutSuccess": "تم تسجيل الخروج بنجاح!",
+    "signOutError": "فشل تسجيل الخروج. يرجى المحاولة مرة أخرى.",
+    "signInError": "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد الخاصة بك.",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التحقق من بيانات الاعتماد والمحاولة مرة أخرى.",
+    "adminUserBlocked": "لا يمكن لمستخدمي الإدارة تسجيل الدخول من المتجر. يرجى استخدام لوحة تحكم الإدارة.",
+    "signUpError": "فشل إنشاء الحساب. يرجى المحاولة مرة أخرى.",
+    "genericError": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "guestCheckoutInfo": "يمكنك متابعة التسوق دون حساب.",
+    "continueShopping": "متابعة التسوق"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "description": "إدارة تفضيلات وإعدادات حسابك",
+    "accountInfo": "معلومات الحساب",
+    "accountInfoDescription": "تفاصيل حسابك",
+    "email": "البريد الإلكتروني",
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "أدخل اسمك الكامل",
+    "phone": "الهاتف",
+    "phonePlaceholder": "أدخل رقم هاتفك",
+    "save": "حفظ التغييرات",
+    "saving": "جاري الحفظ...",
+    "updateSuccess": "تم تحديث الملف الشخصي بنجاح!",
+    "updateError": "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
+    "preferences": "التفضيلات",
+    "preferencesDescription": "تخصيص تجربتك",
+    "language": "اللغة",
+    "currency": "العملة",
+    "accountActions": "إجراءات الحساب",
+    "signOut": "تسجيل الخروج"
+  },
+  "orders": {
+    "title": "طلباتي",
+    "description": "عرض وتتبع سجل طلباتك",
+    "noOrders": "لا توجد طلبات بعد",
+    "noOrdersDescription": "لم تقم بأي طلبات بعد. ابدأ التسوق لرؤية طلباتك هنا.",
+    "startShopping": "ابدأ التسوق",
+    "order": "طلب",
+    "total": "المجموع",
+    "quantity": "الكمية",
+    "status": {
+      "pending": "قيد الانتظار",
+      "processing": "قيد المعالجة",
+      "shipped": "تم الشحن",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغي"
+    }
   }
 }

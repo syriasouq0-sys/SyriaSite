@@ -1,21 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ProductCard from '@/components/ProductCard';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Search, Loader2, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import PageTransition from '@/components/PageTransition';
 
 const Store = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'en' | 'ar' | 'sv';
 
   // Fetch products from Supabase
   const { data: products = [], isLoading, error } = useProducts();
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
   const categories = [
     { id: 'all', label: t('store.categories.all') },
@@ -24,21 +38,50 @@ const Store = () => {
     { id: 'accessories', label: t('store.categories.accessories') },
   ];
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.title[lang].toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description[lang].toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      // Defensive check: ensure title and description exist for the current language
+      const title = product.title?.[lang] || '';
+      const description = product.description?.[lang] || '';
+      
+      const matchesSearch = title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                           description.toLowerCase().includes(debouncedSearch.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, debouncedSearch, selectedCategory, lang]);
 
-  // Loading state
+  // Loading state with skeletons
   if (isLoading) {
     return (
       <div className="min-h-screen py-12">
-        <div className="container flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-muted-foreground">{t('store.loading') || 'Loading products...'}</p>
+        <div className="container">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12"
+          >
+            <h1 className="text-4xl font-bold mb-4">{t('store.title')}</h1>
+            <p className="text-muted-foreground text-lg">
+              {t('store.subtitle')}
+            </p>
+          </motion.div>
+
+          <div className="mb-8 space-y-6">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t('store.searchPlaceholder')}
+                disabled
+                className="pl-9"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
           </div>
         </div>
       </div>
@@ -66,6 +109,7 @@ const Store = () => {
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen py-12">
       <div className="container">
         {/* Header */}
@@ -89,8 +133,21 @@ const Store = () => {
               placeholder={t('store.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
+              className="pl-9 pr-9"
             />
+            <AnimatePresence>
+              {searchTerm && (
+                <motion.button
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Category Filters */}
@@ -145,6 +202,7 @@ const Store = () => {
         )}
       </div>
     </div>
+    </PageTransition>
   );
 };
 

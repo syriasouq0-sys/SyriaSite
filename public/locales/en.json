@@ -3,7 +3,12 @@
     "home": "Home",
     "store": "Store",
     "about": "About",
-    "cart": "Cart"
+    "cart": "Cart",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "myAccount": "My Account",
+    "orders": "Orders",
+    "settings": "Settings"
   },
   "hero": {
     "badge": "Authentic Syrian Products",
@@ -125,6 +130,72 @@
     "subscribe": "Subscribe",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "current": "Current"
+    "current": "Current",
+    "securePayment": "Secure Payment Methods"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "signInButton": "Sign In",
+    "createAccount": "Create Account",
+    "signInDescription": "Sign in to your account to access your orders and settings",
+    "signUpDescription": "Create a new account to track your orders and manage your preferences",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "alreadyHaveAccount": "Already have an account? Sign in",
+    "dontHaveAccount": "Don't have an account? Sign up",
+    "loading": "Loading...",
+    "signInSuccess": "Signed in successfully!",
+    "signUpSuccess": "Account created! Please check your email to verify your account.",
+    "signOutSuccess": "Signed out successfully!",
+    "signOutError": "Failed to sign out. Please try again.",
+    "signInError": "Failed to sign in. Please check your credentials.",
+    "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
+    "adminUserBlocked": "Admin users cannot sign in through the shop. Please use the admin dashboard.",
+    "signUpError": "Failed to create account. Please try again.",
+    "genericError": "An error occurred. Please try again.",
+    "guestCheckoutInfo": "You can continue shopping without an account.",
+    "continueShopping": "Continue Shopping"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account preferences and settings",
+    "accountInfo": "Account Information",
+    "accountInfoDescription": "Your account details",
+    "email": "Email",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "phone": "Phone",
+    "phonePlaceholder": "Enter your phone number",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "updateSuccess": "Profile updated successfully!",
+    "updateError": "Failed to update profile. Please try again.",
+    "preferences": "Preferences",
+    "preferencesDescription": "Customize your experience",
+    "language": "Language",
+    "currency": "Currency",
+    "accountActions": "Account Actions",
+    "signOut": "Sign Out"
+  },
+  "orders": {
+    "title": "My Orders",
+    "description": "View and track your order history",
+    "noOrders": "No orders yet",
+    "noOrdersDescription": "You haven't placed any orders yet. Start shopping to see your orders here.",
+    "startShopping": "Start Shopping",
+    "order": "Order",
+    "total": "Total",
+    "quantity": "Quantity",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
   }
 }

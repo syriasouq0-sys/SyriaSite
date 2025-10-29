@@ -3,7 +3,12 @@
     "home": "Hem",
     "store": "Butik",
     "about": "Om oss",
-    "cart": "Varukorg"
+    "cart": "Varukorg",
+    "signIn": "Logga in",
+    "signOut": "Logga ut",
+    "myAccount": "Mitt konto",
+    "orders": "Beställningar",
+    "settings": "Inställningar"
   },
   "hero": {
     "badge": "Autentiska syriska produkter",
@@ -125,6 +130,72 @@
     "subscribe": "Prenumerera",
     "privacy": "Integritetspolicy",
     "terms": "Användarvillkor",
-    "current": "Nuvarande"
+    "current": "Nuvarande",
+    "securePayment": "Säkra betalningsmetoder"
+  },
+  "auth": {
+    "signIn": "Logga in",
+    "signUp": "Skapa konto",
+    "signOut": "Logga ut",
+    "signInButton": "Logga in",
+    "createAccount": "Skapa konto",
+    "signInDescription": "Logga in på ditt konto för att komma åt dina beställningar och inställningar",
+    "signUpDescription": "Skapa ett nytt konto för att spåra dina beställningar och hantera dina inställningar",
+    "email": "E-post",
+    "password": "Lösenord",
+    "emailPlaceholder": "Ange din e-postadress",
+    "passwordPlaceholder": "Ange ditt lösenord",
+    "alreadyHaveAccount": "Har du redan ett konto? Logga in",
+    "dontHaveAccount": "Har du inget konto? Registrera dig",
+    "loading": "Laddar...",
+    "signInSuccess": "Inloggning lyckades!",
+    "signUpSuccess": "Konto skapat! Kontrollera din e-post för att verifiera ditt konto.",
+    "signOutSuccess": "Utloggning lyckades!",
+    "signOutError": "Utloggning misslyckades. Försök igen.",
+    "signInError": "Inloggning misslyckades. Kontrollera dina uppgifter.",
+    "invalidCredentials": "Ogiltig e-post eller lösenord. Kontrollera dina uppgifter och försök igen.",
+    "adminUserBlocked": "Adminanvändare kan inte logga in via butiken. Använd adminpanelen istället.",
+    "signUpError": "Kontoskapande misslyckades. Försök igen.",
+    "genericError": "Ett fel uppstod. Försök igen.",
+    "guestCheckoutInfo": "Du kan fortsätta handla utan konto.",
+    "continueShopping": "Fortsätt handla"
+  },
+  "settings": {
+    "title": "Inställningar",
+    "description": "Hantera dina kontopreferenser och inställningar",
+    "accountInfo": "Kontoinformation",
+    "accountInfoDescription": "Dina kontouppgifter",
+    "email": "E-post",
+    "fullName": "Fullständigt namn",
+    "fullNamePlaceholder": "Ange ditt fullständiga namn",
+    "phone": "Telefon",
+    "phonePlaceholder": "Ange ditt telefonnummer",
+    "save": "Spara ändringar",
+    "saving": "Sparar...",
+    "updateSuccess": "Profil uppdaterad!",
+    "updateError": "Kunde inte uppdatera profil. Försök igen.",
+    "preferences": "Preferenser",
+    "preferencesDescription": "Anpassa din upplevelse",
+    "language": "Språk",
+    "currency": "Valuta",
+    "accountActions": "Kontoåtgärder",
+    "signOut": "Logga ut"
+  },
+  "orders": {
+    "title": "Mina beställningar",
+    "description": "Visa och spåra din beställningshistorik",
+    "noOrders": "Inga beställningar ännu",
+    "noOrdersDescription": "Du har inte lagt några beställningar ännu. Börja handla för att se dina beställningar här.",
+    "startShopping": "Börja handla",
+    "order": "Beställning",
+    "total": "Totalt",
+    "quantity": "Kvantitet",
+    "status": {
+      "pending": "Väntande",
+      "processing": "Bearbetas",
+      "shipped": "Skickad",
+      "delivered": "Levererad",
+      "cancelled": "Inställd"
+    }
   }
 }

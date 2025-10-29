@@ -130,11 +130,17 @@ serve(async (req) => {
 })
 */
 
+interface CartItem {
+  id: string;
+  quantity: number;
+  price: number;
+}
+
 // Client-side helper to call payment intent API
 export async function createPaymentIntent(
   amount: number,
   currency: string,
-  items: any[]
+  items: CartItem[]
 ) {
   try {
     // This would call your Supabase Edge Function

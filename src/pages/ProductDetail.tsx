@@ -49,7 +49,8 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     addItem(product);
-    toast.success(`${product.title[lang]} ${t('product.addedToCart') || 'added to cart!'}`);
+    const productTitle = product.title?.[lang] || product.title?.en || 'Product';
+    toast.success(`${productTitle} ${t('product.addedToCart') || 'added to cart!'}`);
   };
 
   return (
@@ -76,7 +77,7 @@ const ProductDetail = () => {
             <div className="aspect-square rounded-2xl overflow-hidden bg-muted">
               <img
                 src={product.images[selectedImageIndex]}
-                alt={`${product.title[lang]} - Image ${selectedImageIndex + 1}`}
+                alt={`${product.title?.[lang] || product.title?.en || 'Product'} - Image ${selectedImageIndex + 1}`}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -97,7 +98,7 @@ const ProductDetail = () => {
                   >
                     <img
                       src={image}
-                      alt={`${product.title[lang]} - Thumbnail ${index + 1}`}
+                      alt={`${product.title?.[lang] || product.title?.en || 'Product'} - Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -115,11 +116,13 @@ const ProductDetail = () => {
           >
             <div>
               <Badge className="mb-3">{product.category}</Badge>
-              <h1 className="text-4xl font-bold mb-2">{product.title[lang]}</h1>
+              <h1 className="text-4xl font-bold mb-2">
+                {product.title?.[lang] || product.title?.en || 'Product'}
+              </h1>
               
               {/* Calculate discount logic */}
               {(() => {
-                const productDiscount = product.discount_percentage && product.discount_percentage > 0;
+                const productDiscount = product.discount_active && product.discount_percentage && product.discount_percentage > 0;
                 const eventDiscount = activeEvent?.discount_percentage && activeEvent.discount_percentage > 0;
                 
                 const hasDiscount = productDiscount || eventDiscount;
@@ -157,7 +160,7 @@ const ProductDetail = () => {
             </div>
 
             <p className="text-lg text-muted-foreground leading-relaxed">
-              {product.description[lang]}
+              {product.description?.[lang] || product.description?.en || ''}
             </p>
 
             {/* Stock status */}
@@ -224,11 +227,15 @@ const ProductDetail = () => {
               <div className="space-y-2 text-sm">
                 <div>
                   <span className="font-medium">Arabic:</span>{' '}
-                  <span className="text-muted-foreground" dir="rtl">{product.title.ar}</span>
+                  <span className="text-muted-foreground" dir="rtl">
+                    {product.title?.ar || 'N/A'}
+                  </span>
                 </div>
                 <div>
                   <span className="font-medium">Swedish:</span>{' '}
-                  <span className="text-muted-foreground">{product.title.sv}</span>
+                  <span className="text-muted-foreground">
+                    {product.title?.sv || 'N/A'}
+                  </span>
                 </div>
               </div>
             </div>

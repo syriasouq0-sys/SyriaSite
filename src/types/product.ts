@@ -19,6 +19,7 @@ export interface Product {
   images: string[];
   featured?: boolean;
   discount_percentage?: number;
+  discount_active?: boolean;
 }
 
 export interface CartItem {

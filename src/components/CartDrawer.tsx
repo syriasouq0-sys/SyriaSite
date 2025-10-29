@@ -130,7 +130,7 @@ const CartDrawer = () => {
                     <div className="relative">
                       <img
                         src={item.product.images[0]}
-                        alt={item.product.title[lang]}
+                        alt={item.product.title?.[lang] || item.product.title?.en || 'Product'}
                         className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-md border"
                       />
                       {item.quantity >= item.product.stock && (
@@ -148,7 +148,7 @@ const CartDrawer = () => {
                       <div>
                         <div className="flex justify-between items-start gap-2 mb-1">
                           <h4 className="font-semibold text-sm leading-tight line-clamp-2 pr-2">
-                            {item.product.title[lang]}
+                            {item.product.title?.[lang] || item.product.title?.en || 'Product'}
                           </h4>
                           <button
                             onClick={() => removeItem(item.product.id)}

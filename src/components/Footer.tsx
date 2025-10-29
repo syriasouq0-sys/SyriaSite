@@ -138,8 +138,8 @@ const Footer = () => {
               <ul className="space-y-2.5">
                 {[
                   { to: "/about", label: t('footer.aboutUs') },
-                  { to: "#", label: t('footer.shipping') },
-                  { to: "#", label: t('footer.returns') },
+                  { to: "/privacy-policy", label: t('footer.privacy') },
+                  { to: "/terms-conditions", label: t('footer.terms') },
                   { to: "#", label: t('footer.contact') }
                 ].map((link) => (
                   <li key={link.to}>
@@ -184,6 +184,54 @@ const Footer = () => {
         </div>
       </div>
 
+      {/* Payment Methods Section */}
+      <div className="bg-muted/30 border-t">
+        <div className="container py-8">
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-sm font-medium text-muted-foreground">
+              {t('footer.securePayment') || 'Secure Payment Methods'}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              {/* Swish */}
+              <div className="flex items-center justify-center h-12 px-4 bg-white rounded-lg border">
+                <img 
+                  src="/locales/images/swish.png" 
+                  alt="Swish" 
+                  className="h-8 object-contain"
+                />
+              </div>
+              
+              {/* Klarna */}
+              <div className="flex items-center justify-center h-12 px-4 bg-white rounded-lg border">
+                <img 
+                  src="/locales/images/Klarna.png" 
+                  alt="Klarna" 
+                  className="h-6 object-contain"
+                />
+              </div>
+              
+              {/* Visa */}
+              <div className="flex items-center justify-center h-12 px-4 bg-white rounded-lg border">
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" 
+                  alt="Visa" 
+                  className="h-8 object-contain"
+                />
+              </div>
+              
+              {/* Mastercard */}
+              <div className="flex items-center justify-center h-12 px-4 bg-white rounded-lg border">
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" 
+                  alt="Mastercard" 
+                  className="h-10 object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom Footer */}
       <div className="bg-muted/50 border-t">
         <div className="container py-6">
@@ -192,11 +240,11 @@ const Footer = () => {
               © 2024 {isArabic ? 'سوق سوريا' : 'Syria Store'}. {t('footer.rights')}.
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link to="#" className="hover:text-primary transition-colors">
+              <Link to="/privacy-policy" className="hover:text-primary transition-colors">
                 {t('footer.privacy')}
               </Link>
               <span>•</span>
-              <Link to="#" className="hover:text-primary transition-colors">
+              <Link to="/terms-conditions" className="hover:text-primary transition-colors">
                 {t('footer.terms')}
               </Link>
               <span>•</span>

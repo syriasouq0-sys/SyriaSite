@@ -10,8 +10,18 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { mockStripeElements } from '@/lib/mockStripe';
 
+interface ShippingInfo {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
 interface StripeCheckoutFormProps {
-  shippingInfo: any;
+  shippingInfo: ShippingInfo;
   onBack: () => void;
 }
 
@@ -76,8 +86,9 @@ export default function StripeCheckoutForm({ shippingInfo, onBack }: StripeCheck
         clearCart();
         navigate('/order-confirmation');
       }
-    } catch (err: any) {
-      setErrorMessage(err.message);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setErrorMessage(errorMessage);
       toast.error('An unexpected error occurred');
     } finally {
       setIsProcessing(false);

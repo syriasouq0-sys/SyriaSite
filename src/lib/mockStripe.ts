@@ -5,11 +5,27 @@
  * Creates a mock payment intent client secret
  * In production, this would call the Stripe API through a server endpoint
  */
+interface CartItem {
+  id: string;
+  quantity: number;
+  price: number;
+}
+
+interface ShippingInfo {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
 export async function createMockPaymentIntent(
   amount: number,
   currency: string,
-  items: any[],
-  shipping: any,
+  items: CartItem[],
+  shipping: ShippingInfo,
   discountCode: string | null
 ): Promise<{ clientSecret: string }> {
   // Simulate network delay
