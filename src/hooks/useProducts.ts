@@ -13,7 +13,6 @@ const safeJsonParse = (value: unknown, fallback: unknown = null): unknown => {
   try {
     return JSON.parse(value);
   } catch (error) {
-    console.warn('Failed to parse JSON:', value, error);
     return fallback;
   }
 };
@@ -51,19 +50,17 @@ const normalizeProduct = (product: Record<string, unknown>): Product | null => {
 
     // Validate that we have at least a title in one language
     if (!normalizedTitle.en && !normalizedTitle.ar && !normalizedTitle.sv) {
-      console.warn('Product missing title:', product.id || 'unknown');
       return null;
     }
 
-    return {
-      ...product,
-      title: normalizedTitle,
-      description: normalizedDescription,
-    } as Product;
-  } catch (error) {
-    console.error('Error normalizing product:', product.id || 'unknown', error);
-    return null;
-  }
+      return {
+        ...product,
+        title: normalizedTitle,
+        description: normalizedDescription,
+      } as Product;
+    } catch (error) {
+      return null;
+    }
 };
 
 /**
@@ -74,21 +71,11 @@ export const useProducts = () => {
     queryKey: ['products'],
     queryFn: async () => {
       try {
-        console.log('useProducts: Starting product fetch...');
         const { data, error } = await supabaseHelpers.getProducts();
         
         if (error) {
-          console.error('useProducts: Error fetching products:', error);
-          console.error('Error details:', {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-          });
-          
           // Don't throw on RLS errors - return empty array instead
           if (error.code === '42501' || error.message?.includes('permission denied') || error.message?.includes('RLS')) {
-            console.warn('RLS policy blocking access. Returning empty array.');
             return [];
           }
           
@@ -96,22 +83,14 @@ export const useProducts = () => {
         }
         
         const products = (data as Record<string, unknown>[]) || [];
-        console.log(`useProducts: Raw products fetched: ${products.length}`);
         
         // Normalize products and filter out invalid ones
         const normalizedProducts = products
           .map(normalizeProduct)
           .filter((product): product is Product => product !== null);
         
-        console.log(`useProducts: Normalized products: ${normalizedProducts.length}`);
-        
-        if (normalizedProducts.length === 0 && products.length > 0) {
-          console.warn('All products failed normalization, check product data format');
-        }
-        
         return normalizedProducts;
       } catch (error) {
-        console.error('useProducts: Failed to fetch products:', error);
         throw error;
       }
     },
@@ -140,7 +119,6 @@ export const useProductBySlug = (slug: string) => {
         }
         return data ? normalizeProduct(data) : null;
       } catch (error) {
-        console.error('Failed to fetch product by slug:', slug, error);
         throw error;
       }
     },
@@ -159,21 +137,11 @@ export const useFeaturedProducts = () => {
     queryKey: ['products', 'featured'],
     queryFn: async () => {
       try {
-        console.log('useFeaturedProducts: Starting featured products fetch...');
         const { data, error } = await supabaseHelpers.getFeaturedProducts();
         
         if (error) {
-          console.error('useFeaturedProducts: Error fetching featured products:', error);
-          console.error('Error details:', {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-          });
-          
           // Don't throw on RLS errors - return empty array instead
           if (error.code === '42501' || error.message?.includes('permission denied') || error.message?.includes('RLS')) {
-            console.warn('RLS policy blocking access. Returning empty array.');
             return [];
           }
           
@@ -181,18 +149,15 @@ export const useFeaturedProducts = () => {
         }
         
         const products = (data as Record<string, unknown>[]) || [];
-        console.log(`useFeaturedProducts: Raw products fetched: ${products.length}`);
         
         // Normalize products and filter out invalid ones
         const normalizedProducts = products
           .map(normalizeProduct)
-          .filter((product): product is Product => product !== null);
-        
-        console.log(`useFeaturedProducts: Normalized products: ${normalizedProducts.length}`);
+          .filter((product): product is Product => product !== null)
+          .slice(0, 4); // Limit to 4 products for display
         
         return normalizedProducts;
       } catch (error) {
-        console.error('useFeaturedProducts: Failed to fetch featured products:', error);
         throw error;
       }
     },
@@ -230,7 +195,6 @@ export const useProductsByCategory = (category: string) => {
         
         return normalizedProducts;
       } catch (error) {
-        console.error('Failed to fetch products by category:', category, error);
         throw error;
       }
     },

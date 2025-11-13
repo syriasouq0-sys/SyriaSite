@@ -49,22 +49,41 @@ export default function OrderConfirmation() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('order_id');
+  const sessionId = searchParams.get('session_id');
   const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState<boolean>(!!orderId);
+  const [loading, setLoading] = useState<boolean>(!!(orderId || sessionId));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Celebrate with confetti!
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 }
     });
 
-    // Fetch order details if we have an order ID
-    if (orderId) {
-      const fetchOrder = async () => {
-        try {
+    const fetchOrder = async () => {
+      try {
+        let orderData = null;
+
+        if (sessionId) {
+          const { data: orders, error: sessionError } = await supabaseHelpers.supabase
+            .from('orders')
+            .select(`
+              *,
+              order_items (
+                *,
+                products (id, title, images)
+              )
+            `)
+            .eq('stripe_session_id', sessionId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+          
+          if (!sessionError && orders) {
+            orderData = orders;
+          }
+        } else if (orderId) {
           const { data, error } = await supabaseHelpers.supabase
             .from('orders')
             .select(`
@@ -78,18 +97,28 @@ export default function OrderConfirmation() {
             .single();
           
           if (error) throw error;
-          setOrder(data as Order);
-        } catch (err) {
-          console.error('Error fetching order:', err);
-          setError('Could not load order details');
-        } finally {
-          setLoading(false);
+          orderData = data;
         }
-      };
-      
+
+        if (orderData) {
+          setOrder(orderData as Order);
+        } else if (sessionId || orderId) {
+          setError('Order not found. It may still be processing.');
+        }
+      } catch (err) {
+        console.error('Error fetching order:', err);
+        setError('Could not load order details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (sessionId || orderId) {
       fetchOrder();
+    } else {
+      setLoading(false);
     }
-  }, [orderId]);
+  }, [sessionId, orderId]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-primary/5 to-background">

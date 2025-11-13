@@ -74,12 +74,10 @@ export const sendOrderConfirmationEmail = async (orderId: string): Promise<boole
       .single();
 
     if (error) {
-      console.error('Error fetching order for email:', error);
       return false;
     }
 
     if (!order) {
-      console.error('Order not found for email');
       return false;
     }
 
@@ -118,8 +116,6 @@ export const sendOrderConfirmationEmail = async (orderId: string): Promise<boole
     );
 
     if (response.status === 200) {
-      console.log('Email sent successfully:', response);
-      
       // Update the order with email_sent flag
       const { error: updateError } = await supabaseHelpers.supabase
         .from('orders')
@@ -127,16 +123,14 @@ export const sendOrderConfirmationEmail = async (orderId: string): Promise<boole
         .eq('id', orderId);
 
       if (updateError) {
-        console.error('Error updating order email status:', updateError);
+        // Silent error handling
       }
       
       return true;
     } else {
-      console.error('Failed to send email:', response);
       return false;
     }
   } catch (err) {
-    console.error('Error sending email:', err);
     return false;
   }
 };

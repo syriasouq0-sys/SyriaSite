@@ -13,20 +13,6 @@ const Home = () => {
   const { data: featuredProducts = [], isLoading, error } = useFeaturedProducts();
   const { t } = useTranslation();
   
-  // Log error for debugging
-  useEffect(() => {
-    if (error) {
-      console.error('Featured products error:', error);
-      // Check for RLS/authentication errors
-      if (error && typeof error === 'object' && 'code' in error) {
-        const code = String(error.code);
-        if (code === '42501' || code.includes('permission') || String(error.message || '').includes('RLS')) {
-          console.error('⚠️ RLS Policy Issue: Products may not be accessible to anonymous users.');
-          console.error('Please run the SQL script: scripts/fix-products-rls.sql in your Supabase SQL editor.');
-        }
-      }
-    }
-  }, [error]);
 
   return (
     <PageTransition>
@@ -176,7 +162,7 @@ const Home = () => {
               <p className="text-muted-foreground">{t('products.noFeatured') || 'No featured products available'}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
               {featuredProducts.map((product, index) => (
                 <motion.div
                   key={product.id}

@@ -66,24 +66,12 @@ export const sendOrderConfirmationEmail = async (orderId: string): Promise<boole
       .single();
 
     if (error) {
-      console.error('Error fetching order for email:', error);
       return false;
     }
 
     if (!order) {
-      console.error('Order not found for email');
       return false;
     }
-
-    // Log email details to console (for demo purposes)
-    console.log('--------------------------------');
-    console.log('📧 MOCK EMAIL CONFIRMATION SENT');
-    console.log('--------------------------------');
-    console.log(`To: ${order.shipping.email}`);
-    console.log(`Subject: Your Order Confirmation #${order.id}`);
-    console.log(`Order Total: ${formatCurrency(order.total_amount, order.currency)}`);
-    console.log(`Items: ${order.order_items?.length || 0}`);
-    console.log('--------------------------------');
 
     // Update the order with email_sent flag
     const { error: updateError } = await supabaseHelpers.supabase
@@ -92,13 +80,11 @@ export const sendOrderConfirmationEmail = async (orderId: string): Promise<boole
       .eq('id', orderId);
 
     if (updateError) {
-      console.error('Error updating order email status:', updateError);
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error('Error sending mock email:', err);
     return false;
   }
 };

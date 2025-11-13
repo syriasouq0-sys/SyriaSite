@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCartStore } from '@/store/useCartStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,14 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Truck, CreditCard, ArrowLeft, Package, Loader2, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Truck, CreditCard, ArrowLeft, Package, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabaseHelpers } from '@/lib/supabase';
-import { sendOrderConfirmationEmail } from '@/lib/emailService';
+import { createCheckoutSession } from '@/lib/stripe';
+
+const steps = ['shipping', 'payment', 'review'];
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items, getTotalPrice, getSubtotal, getDiscount, currency, discountCode, discountPercentage, clearCart } = useCartStore();
+  const [searchParams] = useSearchParams();
+  const { items, getTotalPrice, getSubtotal, getDiscount, currency, discountCode, discountPercentage } = useCartStore();
   const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -29,6 +31,13 @@ const Checkout = () => {
     postalCode: '',
     country: 'Sweden',
   });
+
+  useEffect(() => {
+    if (searchParams.get('canceled') === 'true') {
+      toast.error('Payment was canceled');
+      setPaymentError('Payment was canceled. Please try again.');
+    }
+  }, [searchParams]);
 
   if (items.length === 0) {
     return (
@@ -45,18 +54,52 @@ const Checkout = () => {
 
   const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validate shipping info
-    if (!shippingInfo.fullName || !shippingInfo.email || !shippingInfo.address) {
+    if (!shippingInfo.fullName || !shippingInfo.email || !shippingInfo.address || !shippingInfo.city || !shippingInfo.postalCode) {
       toast.error('Please fill in all required fields');
       return;
     }
-    
+    setStep('review');
+  };
+
+  const handleProceedToPayment = async () => {
     setIsProcessing(true);
     setPaymentError(null);
 
-    // No need to create a payment intent, just proceed to payment step
-    setIsProcessing(false);
-    setStep('payment');
+    try {
+      const activeEvent = (window as any).activeEvent;
+      const itemsWithEvent = items.map(item => ({
+        ...item,
+        activeEvent,
+      }));
+
+      const subtotal = getSubtotal();
+      const discount = getDiscount();
+      const total = getTotalPrice();
+      const shipping = total > 500 ? 0 : 49;
+
+      const { url } = await createCheckoutSession({
+        items: itemsWithEvent,
+        shippingInfo,
+        currency,
+        discountCode: discountCode || undefined,
+        discountAmount: discount,
+        subtotal,
+        shipping,
+        total: total + shipping,
+      });
+
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      setPaymentError(error.message || 'Failed to initialize payment. Please try again.');
+      toast.error(error.message || 'Failed to initialize payment');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const total = getTotalPrice();
@@ -77,9 +120,8 @@ const Checkout = () => {
 
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
-        {/* Progress Indicator */}
         <div className="flex items-center justify-center mb-12 gap-2">
-          {['shipping', 'payment', 'review'].map((s, idx) => (
+          {steps.map((s, idx) => (
             <div key={s} className="flex items-center">
               <div
                 className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
@@ -90,7 +132,11 @@ const Checkout = () => {
                     : 'bg-muted text-muted-foreground'
                 }`}
               >
-                {idx + 1}
+                {steps.indexOf(step) > idx ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : (
+                  idx + 1
+                )}
               </div>
               {idx < 2 && (
                 <div
@@ -214,22 +260,8 @@ const Checkout = () => {
                         </div>
                       </div>
 
-                      {paymentError && (
-                        <Alert variant="destructive">
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>{paymentError}</AlertDescription>
-                        </Alert>
-                      )}
-
                       <Button type="submit" className="w-full" size="lg" disabled={isProcessing}>
-                        {isProcessing ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Preparing Payment...
-                          </>
-                        ) : (
-                          'Continue to Payment'
-                        )}
+                        Continue to Review
                       </Button>
                     </form>
                   </CardContent>
@@ -237,151 +269,117 @@ const Checkout = () => {
               </motion.div>
             )}
 
-            {/* Payment Form */}
-            {step === 'payment' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-primary" />
-                    Payment Details
-                  </CardTitle>
-                  <CardDescription>
-                    Enter your payment information to complete your order
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 border rounded-lg space-y-4">
-                    <div className="space-y-2">
-                      <Label>Card Number</Label>
-                      <Input placeholder="4242 4242 4242 4242" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Expiry Date</Label>
-                        <Input placeholder="MM/YY" />
+            {step === 'review' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-primary" />
+                      Review & Payment
+                    </CardTitle>
+                    <CardDescription>Review your order and proceed to secure payment</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-semibold mb-2">Shipping Address</h3>
+                        <div className="bg-muted/50 rounded-lg p-4 text-sm">
+                          <p className="font-medium">{shippingInfo.fullName}</p>
+                          <p className="text-muted-foreground">{shippingInfo.address}</p>
+                          <p className="text-muted-foreground">
+                            {shippingInfo.postalCode}, {shippingInfo.city}
+                          </p>
+                          <p className="text-muted-foreground">{shippingInfo.country}</p>
+                          {shippingInfo.phone && (
+                            <p className="text-muted-foreground mt-2">Phone: {shippingInfo.phone}</p>
+                          )}
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label>CVC</Label>
-                        <Input placeholder="123" />
+
+                      <div>
+                        <h3 className="font-semibold mb-2">Order Items</h3>
+                        <div className="space-y-2">
+                          {items.map((item) => {
+                            const activeEvent = (window as any).activeEvent;
+                            const productDiscount = item.product.discount_percentage && item.product.discount_percentage > 0;
+                            const eventDiscount = activeEvent?.discount_percentage && activeEvent.discount_percentage > 0;
+                            const hasDiscount = productDiscount || eventDiscount;
+                            const discountPercentage = productDiscount
+                              ? item.product.discount_percentage
+                              : (eventDiscount ? activeEvent?.discount_percentage : 0);
+                            const unitPrice = hasDiscount && discountPercentage
+                              ? Math.round(item.product.price * (1 - discountPercentage / 100))
+                              : item.product.price;
+
+                            return (
+                              <div key={item.product.id} className="flex gap-3 bg-muted/50 rounded-lg p-3">
+                                <img
+                                  src={item.product.images[0]}
+                                  alt={item.product.title.en}
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">{item.product.title.en}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Qty: {item.quantity} × {unitPrice} {currency}
+                                  </p>
+                                </div>
+                                <p className="font-semibold">
+                                  {unitPrice * item.quantity} {currency}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  {paymentError && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{paymentError}</AlertDescription>
-                    </Alert>
-                  )}
-                  
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setStep('shipping')}
-                      className="flex-1"
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      onClick={async () => {
-                        setIsProcessing(true);
-                        
-                        try {
-                          // Generate a mock payment ID for this example
-                          const mockPaymentId = `mock_${Math.random().toString(36).substring(2, 15)}`;
-                          
-                          // Save order to Supabase
-                          const { data: order, error: orderError } = await supabaseHelpers.createOrder({
-                            total_amount: finalTotal,
-                            currency: currency,
-                            shipping: shippingInfo,
-                            status: 'paid',
-                            discount_code: discountCode || null,
-                            discount_amount: getDiscount() || 0,
-                            payment_method: 'card',
-                            payment_id: mockPaymentId,
-                            created_at: new Date().toISOString()
-                          });
-                          
-                          if (orderError) {
-                            console.error('Error creating order:', orderError);
-                            throw new Error(`Failed to create order: ${orderError.message}`);
-                          }
-                          
-                          if (!order) {
-                            throw new Error('No order was returned from the database');
-                          }
-                          
-                          // Save order items
-                          const orderItems = items.map(item => ({
-                            order_id: order.id,
-                            product_id: item.product.id,
-                            quantity: item.quantity,
-                            unit_price: (() => {
-                              // Get active event from window
-                              const activeEvent = window.activeEvent;
-                              
-                              // Calculate discount
-                              const productDiscount = item.product.discount_percentage && item.product.discount_percentage > 0;
-                              const eventDiscount = activeEvent?.discount_percentage && activeEvent.discount_percentage > 0;
-                              
-                              const hasDiscount = productDiscount || eventDiscount;
-                              const discountPercentage = productDiscount 
-                                ? item.product.discount_percentage 
-                                : (eventDiscount ? activeEvent?.discount_percentage : 0);
-                              
-                              return hasDiscount && discountPercentage
-                                ? Math.round(item.product.price * (1 - discountPercentage / 100))
-                                : item.product.price;
-                            })()
-                          }));
-                          
-                          const { error: itemsError } = await supabaseHelpers.addOrderItems(orderItems);
-                          if (itemsError) {
-                            console.error('Error adding order items:', itemsError);
-                            throw new Error(`Failed to add order items: ${itemsError.message}`);
-                          }
-                          
-                          // Send mock email confirmation
-                          try {
-                            const emailSent = await sendOrderConfirmationEmail(order.id);
-                            if (emailSent) {
-                              console.log('Order confirmation email sent successfully');
-                            } else {
-                              console.warn('Failed to send order confirmation email');
-                            }
-                          } catch (emailErr) {
-                            console.error('Exception sending email:', emailErr);
-                            // Continue with checkout even if email fails
-                          }
-                          
-                          toast.success('Order placed successfully!');
-                          clearCart();
-                          navigate(`/order-confirmation?order_id=${order.id}`);
-                        } catch (error) {
-                          console.error('Error saving order:', error);
-                          setPaymentError(error instanceof Error ? error.message : 'Failed to process your order');
-                          toast.error('There was a problem processing your order. Please try again.');
-                        } finally {
-                          setIsProcessing(false);
-                        }
-                      }}
-                      disabled={isProcessing}
-                      className="flex-1"
-                      size="lg"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        'Complete Purchase'
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+
+                    {paymentError && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{paymentError}</AlertDescription>
+                      </Alert>
+                    )}
+
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => setStep('shipping')}
+                        className="flex-1"
+                        disabled={isProcessing}
+                      >
+                        Back to Shipping
+                      </Button>
+                      <Button
+                        onClick={handleProceedToPayment}
+                        className="flex-1"
+                        size="lg"
+                        disabled={isProcessing}
+                      >
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Proceed to Payment
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground pt-4 border-t">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      <span>Secure payment powered by Stripe</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
 
           </div>
@@ -485,7 +483,7 @@ const Checkout = () => {
                 <div className="pt-4 border-t">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <ShieldCheck className="h-4 w-4 text-primary" />
-                    <span>Secure checkout powered by Stripe</span>
+                    <span>Secure checkout</span>
                   </div>
                 </div>
               </CardContent>
@@ -496,7 +494,5 @@ const Checkout = () => {
     </div>
   );
 };
-
-const steps = ['shipping', 'payment', 'review'];
 
 export default Checkout;

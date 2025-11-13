@@ -10,9 +10,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Validate Supabase configuration
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase configuration missing!');
-  console.error('VITE_SUPABASE_URL:', supabaseUrl ? '✓ Set' : '✗ Missing');
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✓ Set' : '✗ Missing');
+  // Supabase configuration missing - silent error
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -39,65 +37,36 @@ export const supabaseHelpers = {
 
   // Events
   async getActiveEvent() {
+    const now = new Date().toISOString();
     const { data, error } = await supabase
       .from('events')
       .select('*')
       .eq('is_active', true)
-      .gte('end_date', new Date().toISOString())
-      .lte('start_date', new Date().toISOString())
+      .gte('end_date', now)
+      .lte('start_date', now)
       .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    return { data, error };
+      .limit(1);
+    
+    // Return the first result or null if no results
+    return { 
+      data: data && data.length > 0 ? data[0] : null, 
+      error 
+    };
   },
 
   // Products
   async getProducts() {
-    console.log('Fetching products from Supabase...');
-    console.log('Supabase URL:', supabaseUrl ? '✓ Set' : '✗ Missing');
-    console.log('Supabase Key:', supabaseAnonKey ? '✓ Set (length: ' + supabaseAnonKey.length + ')' : '✗ Missing');
-    
     try {
-      const startTime = Date.now();
-      console.log('Query started, waiting for response...');
-      
       const queryPromise = supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
       
-      // Add timeout warning
-      const timeoutId = setTimeout(() => {
-        console.error('Query timeout after 10 seconds - request may be hanging');
-      }, 10000);
-      
       const result = await queryPromise;
-      clearTimeout(timeoutId);
-      
-      const duration = Date.now() - startTime;
-      console.log(`Query completed in ${duration}ms. Data:`, result.data ? 'received (' + (result.data as unknown[]).length + ' items)' : 'null', 'Error:', result.error ? 'yes' : 'no');
-      
       const { data, error } = result;
-      
-      if (error) {
-        console.error('Supabase error fetching products:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-        });
-        // Check if it's an RLS policy error
-        if (error.code === '42501' || error.message?.includes('permission denied') || error.message?.includes('RLS')) {
-          console.error('RLS Policy Error: Products table may not be accessible to anonymous users.');
-          console.error('Please run the fix-products-rls.sql script in your Supabase SQL editor.');
-        }
-      } else {
-        console.log(`Successfully fetched ${data?.length || 0} products`);
-      }
       
       return { data, error };
     } catch (err) {
-      console.error('Unexpected error fetching products:', err);
       const error = err as Error;
       return { 
         data: null, 
@@ -121,31 +90,17 @@ export const supabaseHelpers = {
   },
 
   async getFeaturedProducts() {
-    console.log('🔍 [getFeaturedProducts] Starting fetch...');
-    console.log('📊 Supabase Config Check:');
-    console.log('   URL:', supabaseUrl ? '✓ Set (' + supabaseUrl.substring(0, 30) + '...)' : '✗ Missing');
-    console.log('   Key:', supabaseAnonKey ? '✓ Set (' + supabaseAnonKey.length + ' chars)' : '✗ Missing');
-    
     try {
-      const startTime = Date.now();
-      
-      // First, let's check if we can even connect to Supabase
-      console.log('🔌 Testing Supabase connection...');
+      // First, check if we can connect to Supabase
       const { data: healthCheck, error: healthError } = await supabase
         .from('products')
         .select('id')
         .limit(1);
       
       if (healthError) {
-        console.error('❌ Connection test failed:', healthError);
         if (healthError.code === 'PGRST301' || healthError.message?.includes('relation') || healthError.message?.includes('does not exist')) {
-          console.error('🚨 TABLE NOT FOUND! Check if table name is correct.');
-          console.error('   Expected: products');
-          console.error('   Your table might be named differently or in a different schema.');
           return { data: [], error: null };
         }
-      } else {
-        console.log('✅ Connection test passed');
       }
       
       // Create a promise that rejects after timeout
@@ -155,68 +110,95 @@ export const supabaseHelpers = {
         }, 8000);
       });
       
-      // Race between query and timeout
-      const queryPromise = supabase
+      // Fetch featured products
+      const featuredQueryPromise = supabase
         .from('products')
         .select('*')
         .eq('featured', true)
         .order('created_at', { ascending: false })
-        .limit(4);
+        .limit(8);
       
-      const result = await Promise.race([queryPromise, timeoutPromise]).catch(async (err) => {
-        // If timeout, check if it's really a timeout or if Supabase returned an error
+      const featuredResult = await Promise.race([featuredQueryPromise, timeoutPromise]).catch(async (err) => {
         if (err.message?.includes('timeout')) {
-          console.error('⏱️ [getFeaturedProducts] Query TIMED OUT after 8 seconds');
-          console.error('🔒 This means RLS policies are BLOCKING access to products table');
-          console.error('📝 SOLUTION: Run scripts/fix-products-rls.sql in Supabase SQL Editor');
-          console.error('💡 This script allows anonymous users to read products');
-          console.error('🔍 TROUBLESHOOTING:');
-          console.error('   1. Check Supabase Dashboard → Authentication → Policies');
-          console.error('   2. Verify "Anyone can read products" policy exists');
-          console.error('   3. Check that RLS is enabled but policy allows SELECT');
-          return { data: [], error: null }; // Return empty to prevent infinite loading
+          return { data: [], error: null };
         }
         throw err;
       });
       
-      const duration = Date.now() - startTime;
-      console.log(`⏱️ [getFeaturedProducts] Query took ${duration}ms`);
-      
       // Handle timeout result
-      if (result && 'data' in result && Array.isArray(result.data)) {
-        return result;
-      }
+      let featuredData: Record<string, unknown>[] = [];
+      let error = null;
       
-      const { data, error } = result || { data: null, error: null };
-      
-      if (error) {
-        console.error('❌ [getFeaturedProducts] Supabase error:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-        });
-        
-        if (error.code === '42501' || error.message?.includes('permission denied') || error.message?.includes('RLS')) {
-          console.error('🔒 RLS POLICY BLOCKING! Products table not accessible.');
-          console.error('📝 SOLUTION: Run scripts/fix-products-rls.sql in Supabase SQL Editor');
-          return { data: [], error: null };
+      if (featuredResult && 'data' in featuredResult && Array.isArray(featuredResult.data)) {
+        featuredData = featuredResult.data;
+      } else if (featuredResult && 'error' in featuredResult) {
+        const resultError = featuredResult.error;
+        if (resultError) {
+          if (resultError.code === '42501' || resultError.message?.includes('permission denied') || resultError.message?.includes('RLS')) {
+            return { data: [], error: null };
+          }
+          error = resultError;
         }
-        
-        return { data: null, error };
+      } else {
+        const { data: resultData, error: resultError } = featuredResult || { data: null, error: null };
+        if (resultError) {
+          if (resultError.code === '42501' || resultError.message?.includes('permission denied') || resultError.message?.includes('RLS')) {
+            return { data: [], error: null };
+          }
+          error = resultError;
+        } else {
+          featuredData = (resultData as Record<string, unknown>[]) || [];
+        }
       }
       
-      console.log(`✅ [getFeaturedProducts] Success! Fetched ${data?.length || 0} products`);
-      return { data, error: null };
+      // If we have fewer than 4 featured products, fetch additional latest products to fill up to 4
+      if (featuredData.length < 4 && !error) {
+        const featuredIds = new Set(featuredData.map(p => p.id));
+        const needed = 4 - featuredData.length;
+        
+        // Fetch latest products and filter out duplicates in JavaScript
+        const additionalQueryPromise = supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(needed + 5);
+        
+        try {
+          const additionalResult = await Promise.race([additionalQueryPromise, timeoutPromise]);
+          
+          let additionalData: Record<string, unknown>[] = [];
+          
+          if (additionalResult && 'data' in additionalResult && Array.isArray(additionalResult.data)) {
+            additionalData = additionalResult.data;
+          } else if (additionalResult && 'error' in additionalResult && additionalResult.error) {
+            // Silent error handling
+          } else {
+            const { data: resultData } = additionalResult || { data: null };
+            if (resultData) {
+              additionalData = resultData as Record<string, unknown>[];
+            }
+          }
+          
+          // Filter out products that are already in featuredData
+          const uniqueAdditional = additionalData.filter(p => !featuredIds.has(p.id));
+          
+          // Add unique products to reach 4 total
+          featuredData = [...featuredData, ...uniqueAdditional];
+        } catch (additionalErr) {
+          // Continue with just featured products
+        }
+      }
+      
+      // Limit to 4 products total
+      const finalData = featuredData.slice(0, 4);
+      
+      return { data: finalData, error: null };
       
     } catch (err) {
-      console.error('💥 [getFeaturedProducts] Unexpected error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       
       if (errorMessage.includes('timeout') || errorMessage.includes('RLS')) {
-        console.error('🔒 RLS POLICY ISSUE DETECTED');
-        console.error('📝 SOLUTION: Run scripts/fix-products-rls.sql in Supabase SQL Editor');
-        return { data: [], error: null }; // Return empty to prevent infinite loading
+        return { data: [], error: null };
       }
       
       return { 
